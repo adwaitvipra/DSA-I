@@ -52,7 +52,7 @@ void Insert(struct Array *arr, int index, int x)
     int i;
     if (Overflow(*arr))
         return;
-    if (index >= 0 && index <= arr->length) // to insert index passed must be between 0 to length
+    if (index >= 0 && index <= arr->length) // to insert index passed must be between 0 to length -> [0, lenght)
     {
         for (i = arr->length; i > index; i--)
             arr->A[i] = arr->A[i - 1];

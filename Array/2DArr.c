@@ -21,7 +21,7 @@ int main(int argc, char const *argv[])
     int *B[3], x = 1; // inside stack
     for (i = 0; i < 3; i++)
         B[i] = (int *)malloc(4 * sizeof(int)); // inside heap
-    for (i = 0; i < 3; i++)                    // inti B
+    for (i = 0; i < 3; i++)                    // init B
     {
         for (j = 0; j < 4; j++)
             B[i][j] = x++;
