@@ -155,7 +155,7 @@ void PairSumSorted(int A[], int n, int k)
         {
             printf("%d + %d = %d\n", A[i], A[j], k);
             i++;
-            j++;
+            j--;
         }
         else if (A[i] + A[j] < k)
             i++;
