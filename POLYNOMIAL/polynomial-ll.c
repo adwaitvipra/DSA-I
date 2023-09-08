@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 #include <math.h>
 
 struct Node
@@ -8,63 +9,111 @@ struct Node
     struct Node *next;
 } *polynomial = NULL;
 
-void Display (struct Node *poly)
+void display (struct Node *poly)
 {
 	struct Node *itr = NULL;
 
 	if (poly)
 	{
 		printf ("\n\nP (X) = ");
+
 		for (itr = poly; itr->next; itr = itr->next)
-			printf("%dX^(%d) + ", itr->coeff, itr->exp);
-		printf("%dX^(%d)\n\n", itr->coeff, itr->exp);
+			printf ("%dX^(%d) + ", itr->coeff, itr->exp);
+
+		printf ("%dX^(%d)\n\n", itr->coeff, itr->exp);
 	}
 
 	return ;
 }
 
-long Evaluate (struct Node *poly, int val)
+long evaluate (struct Node *poly, int val)
 {
-	long ans = 0;
+	long ans = LONG_MIN;
 	struct Node *itr = NULL;
 
 	if (poly)
+	{
+		ans = 0;
+
 		for (itr = poly; itr; itr = itr->next)
 			ans += (itr->coeff) * pow (val, itr->exp);
+	}
+
 	return ans;
 }
 
-void Create (struct Node *poly)
+struct Node *create (struct Node **poly)
 {
-	int num, i;
-	struct Node *new = NULL, *last = NULL;
-	printf("Enter total number of terms in polynomial :\n");
+	int num;
+	struct Node *head = NULL, *tail = NULL, *new = NULL;
+
+	printf("enter total number of terms in polynomial: ");
 	scanf("%d", &num);
-	printf("Enter coefficients and exponents of all the terms :\n");
+	printf("enter coefficients and exponents of all the terms:\n");
 
-	for (i = 0; i < num; i++)
+	for (int i = 0; i < num; i++)
 	{
-		new = (struct Node *)malloc(sizeof(struct Node));
-		scanf("%d %d", &new->coeff, &new->exp);
-		new->next = NULL;
-
-		if (!polynomial)
-			polynomial = last = new;
-		else
+		if ((new = (struct Node *) malloc (sizeof (struct Node))))
 		{
-			last->next = new;
-			last = new;
+			scanf ("%d %d", &new->coeff, &new->exp);
+			new->next = NULL;
+
+			if (!head)
+			{
+				head = new;
+
+				if (poly)
+					*poly = head;
+
+				tail = new;
+			}
+			else
+			{
+				tail->next = new;
+				tail = new;
+			}
 		}
+		else
+			printf ("dynamic allocation failed!\n");
 	}
+
+	return head;
+}
+
+void delete (struct Node **poly)
+{
+	struct Node *tmp = NULL, *ptr = NULL;
+
+	if (poly)
+	{
+		ptr = *poly;
+
+		while (ptr)
+		{
+			tmp = ptr;
+			ptr = ptr->next;
+			free (tmp);
+		}
+
+		*poly = NULL;
+	}
+
+	return ;
 }
 
 int main (int argc, char const *argv[])
 {
 	long val;
-	Create (polynomial);
-	Display (polynomial);
+
+	create (&polynomial);
+
+	display (polynomial);
+
 	printf ("X?\n");
 	scanf ("%ld", &val);
-	printf ("\nP (%ld) = %ld\n", val, Evaluate (polynomial, val));
+	printf ("\nP (%ld) = %ld\n", val, evaluate (polynomial, val));
+
+	delete (&polynomial);
+
 	return 0;
 }
