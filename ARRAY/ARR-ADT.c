@@ -3,262 +3,342 @@
 #include <stdbool.h>
 #include <limits.h>
 
-typedef struct array{
+#define M 128
+#define N 256
+
+typedef struct array
+{
 	int *arr;
 	int size;
-	int length;
-}array;
-// DECLARATION
-bool overflow(array );
-bool underflow(array );
-bool display(array );
-bool append(array *, int );
-bool insert(array *, int , int );
-int delete(array *, int );
+	int capacity;
+} array;
 
-// DEFINATION
-bool overflow(array arr)
+// DECLARATIONS
+
+bool overflow (array);
+bool underflow (array);
+bool display (array);
+bool append (array *, int);
+bool insert (array *, int, int);
+int delete (array *, int);
+
+// DEFINATIONS
+
+bool overflow (array arr)
 {
-	if (arr.length == arr.size)
+	bool flag = false;
+
+	if (arr.size == arr.capacity)
 	{
-		printf("\nOverflow!\n");
-		return true;
+		flag = true;
+
+		printf ("\nOverflow!\n");
 	}
-	return false;
+
+	return flag;
 }
 
-bool underflow(array arr)
+bool underflow (array arr)
 {
-	if (!arr.length)
+	bool flag = false;
+
+	if (!arr.size)
 	{
-		printf("\nUnderflow!\n");
-		return true;
+		flag = true;
+
+		printf ("\nUnderflow!\n");
 	}
-	return false;
+
+	return flag;
 }
 
-bool display(array arr)
+bool display (array arr)
 {
-	if (!underflow(arr))
-	{
-		printf("\ndisplaying array elements (index, value)...\n");
-		for (int i = 0; i < arr.length; i++)
-			printf("(%d, %d) ", i, arr.arr[i]);
-		printf("\n");
+	bool flag = false;
 
-		return true;
+	if (!underflow (arr))
+	{
+		flag = true;
+
+		printf ("\nDisplaying Array Elements (Index, Value) ...\n");
+
+		for (int i = 0; i < arr.size; i++)
+			printf ("(%d, %d) ", i, arr.arr[i]);
+		printf ("\n");
+
 	}
-	return false;
+
+	return flag;
 }
 
-bool append(array *arr, int val)
+bool append (array *arr, int val)
 {
-	if (!overflow(*arr))
+	bool flag = false;
+
+	if (arr && !overflow (*arr))
 	{
-		arr->arr[(arr->length)++] = val;
-		return true;
+		flag = true;
+
+		arr->arr[(arr->size)++] = val;
 	}
-	return false;
+
+	return flag;
 }
 
-bool insert(array *arr, int idx, int val)
+bool insert (array *arr, int idx, int val)
 {
-	if(!overflow(*arr) && ((idx >= 0) && (idx <= arr->length)))
+	bool flag = false;
+
+	if (arr && !overflow (*arr)
+			&& ((idx >= 0) && (idx <= arr->size)))
 	{
-		for(int i=(arr->length)++; i>idx; i--)
-			arr->arr[i] = arr->arr[i-1];
+		flag = true;
+
+		for (int i = (arr->size)++; i > idx; i--)
+			arr->arr[i] = arr->arr[i - 1];
 		arr->arr[idx] = val;
-
-		return true;
 	}
-	return false;
+
+	return flag;
 }
 
-int delete(array *arr, int idx)
+int delete (array *arr, int idx)
 {
-	int retval=INT_MIN;
+	int retval = INT_MIN;
 
-	if(!underflow(!arr) && ((idx >= 0) && (idx < arr->length)))
+	if (arr && !underflow (*arr)
+			&& ((idx >= 0) && (idx < arr->size)))
 	{
 		retval = arr->arr[idx];
-		for(int i=idx; i<arr->length-1;i++)
-			arr->arr[i] = arr->arr[i+1];
 
-		arr->length--;
+		for(int i = idx; i < (arr->size - 1); i++)
+			arr->arr[i] = arr->arr[i + 1];
+		arr->size--;
 	}
+
 	return retval;
 }
-array *copy(array arr)
+
+array *copy (array arr)
 {
 	array* cp_arr = NULL;
-	if((cp_arr = (int *)malloc(sizeof(array))) 
-			&& (cp_arr->arr = (int *)malloc(sizeof(arr.size))))
+
+	if((cp_arr = (array *) malloc (sizeof (array)))
+			&& (cp_arr->arr = (int *) malloc (sizeof (arr.capacity))))
 	{
-		for(int i=0; i<arr.length; i++)
+		for (int i = 0; i < arr.size; i++)
 			cp_arr->arr[i] = arr.arr[i];
-		cp_arr.length = arr.length;
-		cp_arr.size = arr.size;
+
+		cp_arr->size = arr.size;
+		cp_arr->capacity = arr.capacity;
 	}
-	else if(cp_arr)
+	else if (cp_arr)
 	{
-		free(cp_arr);
+		free (cp_arr);
 		cp_arr = NULL;
 	}
+
 	return cp_arr;
 }
 
-bool swap(int *xref,int *yref)
+bool swap (int *xref, int *yref)
 {
-	if(xref && yref)
+	bool flag = false;
+
+	if (xref && yref)
 	{
+		flag = true;
 		*xref = *xref + *yref;
 		*yref = *xref - *yref;
 		*xref = *xref - *yref;
-
-		return true;
 	}
-	return false;
+
+	return flag;
 }
 
-int sequential_search(array arr, int key)
+int sequential_search (array arr, int key)
 {
-	if(!underflow(arr))
-		for(int i=0; i<arr.length; i++)
-			if(arr.arr[i] == key)
-				return i;
-	return INT_MIN;
-}
-
-int xposition_seq_search(array *arr, int key)
-{
-	if(!underflow(*arr))
+	int idx = INT_MIN;
+	if (!underflow (arr))
 	{
-		for(int i=0; i<arr->length; i++)
+		for (int i = 0; i < arr.size; i++)
 		{
-
-			if(arr->arr[i] == key)
+			if (arr.arr[i] == key)
 			{
-				if(i > 0 && swap(&(arr->arr[i]), &(arr->arr[i-1])))
-					return i-1;
-
-				return i;
+				idx = i;
+				break;
 			}
 		}
 	}
 
-	return INT_MIN;
+	return idx;
 }
 
-int move_to_front_seq_search(array *arr, int key)
+// transposition sequential search
+int xposition_seq_search (array *arr, int key)
+{
+	int idx = INT_MIN;
+
+	if (arr && !underflow (*arr))
+	{
+		for (int i = 0; i < arr->size; i++)
+		{
+
+			if (arr->arr[i] == key)
+			{
+				((i > 0) && swap (&(arr->arr[i]), &(arr->arr[i - 1])))
+					? (idx = i - 1) : (idx = i);
+				break;
+			}
+		}
+	}
+
+	return idx;
+}
+
+int move_to_front_seq_search (array *arr, int key)
 {	
-	if(!underflow(*arr))
+	int idx = INT_MIN;
+
+	if (arr && !underflow (*arr))
 	{
-		for(int i=0; i<arr->length; i++)
+		for (int i = 0; i < arr->size; i++)
 		{
-			if(arr->arr[i] == key)
+			if (arr->arr[i] == key)
 			{
-				if(i > 0 && swap(&(arr->arr[i]), &(arr->arr[0])))
-					return 0;
-				return i;
+				((i > 0) && swap (&(arr->arr[i]), &(arr->arr[0])))
+					? (idx = 0) : (idx = i);
+				break;
 			}
 		}
 	}
-	return INT_MIN;
+
+	return idx;
 }
 
-int iterative_binary_search(array arr, int low, int high, int key)
+int iterative_binary_search (array arr, int low, int high, int key)
 {
-	int mid;
-	if (!underflow(arr))
+	int mid, idx =  INT_MIN;
+
+	if (!underflow (arr))
 	{
 		while (low <= high)
 		{
 			mid = (low + high) / 2;
 
 			if (key == arr.arr[mid])
-				return mid;
+			{
+				idx = mid;
+				break;
+			}
 			else if (key < arr.arr[mid])
+			{
 				high = mid - 1;
+			}
 			else
+			{
 				low = mid + 1;
+			}
 		}
 	}
-	return INT_MIN;
+
+	return idx;
 }
 
-int recursive_binary_search(array arr, int low, int high, int key)
+int recursive_binary_search (array arr, int low, int high, int key)
 {
-	int mid;
-	if (!underflow(arr))
+	int mid, idx = INT_MIN;
+
+	if (!underflow (arr))
 	{
 		if (low <= high)
 		{
 			mid = (low + high) / 2;
+
 			if (key == arr.arr[mid])
-				return mid;
+				idx = mid;
 			else if (key < arr.arr[mid])
-				return recursive_binary_search(arr, low, mid - 1, key);
+				idx = recursive_binary_search (arr, low, mid - 1, key);
 			else
-				return recursive_binary_search(arr, mid + 1, high, key);
+				idx = recursive_binary_search (arr, mid + 1, high, key);
 		}
 	}
-	return INT_MIN;
+
+	return idx;
 }
 
-int get_element(array arr, int idx)
+int get_element (array arr, int idx)
 {
-	if (!underflow(arr) && (idx >= 0 && idx < arr.length))
-		return arr.arr[idx];
-	return INT_MIN;
-}
+	int ele = INT_MIN;
 
-bool set_index(array *arr, int idx, int val)
-{
-	if (!underflow(arr) && (idx >= 0 && idx < arr.length))
+	if (!underflow(arr) && (idx >= 0 && idx < arr.size))
 	{
-		arr.arr[idx] = val;
-		return true;
+		ele = arr.arr[idx];
 	}
 
-	return false;
+	return ele;
 }
 
-int iterative_sum(array arr)
+bool set_index (array *arr, int idx, int val)
+{
+	bool flag = false;
+	if (arr && !underflow (*arr)
+			&& (idx >= 0 && idx < arr->size))
+	{
+		flag = true;
+
+		arr->arr[idx] = val;
+	}
+
+	return flag;
+}
+
+int iterative_sum (array arr)
 {
 	int sum = 0;
-	if(!underflow(arr))
-		for(int i=0; i<arr.length; i++)
+
+	if (!underflow (arr))
+		for (int i = 0; i < arr.size; i++)
 			sum += arr.arr[i];
+
 	return sum;
 }
 
-int recursive_sum(array arr) // n must be length-1 tail recursive better to convert into loop
+int recursive_sum_core (array *arr, int n)
 {
-	if(!underflow(arr))
-		return recursive_sum_true(arr.arr, arr.length - 1);
-	return 0;
+	int sum = 0;
+
+	if (arr && (n >= 0))
+		sum = recursive_sum_core (arr, n - 1) + arr->arr[n];
+
+	return sum;
 }
 
-int recursive_sum_true(int *arr, int n)
+// n must be size - 1 tail recursive better to convert into loop
+int recursive_sum (array arr) 
 {
-	if(n >= 0)
-		return recursive_sum_true(arr, n - 1) + arr->arr[n]; 
-	return 0;
+	int sum = 0;
+
+	if (!underflow (arr))
+		sum = recursive_sum_core (&arr, arr.size - 1);
+
+	return sum;
 }
 
-float average(array arr)
+float average (array arr)
 {
-	return (float)iterative_sum(arr) / arr.length;
+	return (float) iterative_sum (arr) / arr.size;
 }
 
-int max(array arr)
+int max (array arr)
 {
 	int max = INT_MIN;
-	if(!underflow(arr))
+
+	if (!underflow(arr))
 	{
-		for(int i=0; i<arr.length; i++)
+		for (int i = 0; i < arr.size; i++)
 		{
-			if(arr.arr[i] > max)
+			if (arr.arr[i] > max)
 				max = arr.arr[i];
 		}
 	}
@@ -266,14 +346,15 @@ int max(array arr)
 	return max;
 }
 
-int min(array arr)
+int min (array arr)
 {
-	int min= INT_MAX;
-	if(!underflow(arr))
+	int min = INT_MAX;
+
+	if (!underflow (arr))
 	{
-		for(int i=0; i<arr.length; i++)
+		for (int i = 0; i < arr.size; i++)
 		{
-			if(arr.arr[i] < min)
+			if (arr.arr[i] < min)
 				min = arr.arr[i];
 		}
 	}
@@ -281,323 +362,477 @@ int min(array arr)
 	return min;
 }
 
-bool auxillary_arr_reverse(array *arr) 
+bool auxillary_arr_reverse (array *arr) 
 {
+	bool flag = false;
 	int i, *aux_arr = NULL;
-	if(!underflow(*arr))
+
+	if (arr && !underflow (*arr)
+			&& (aux_arr = (int*) malloc (sizeof (int) * arr->size)))
 	{
-		if(!(aux_arr = (int*)malloc(sizeof(int) * arr->length)))
-			return false;
-		for(i=0; i<arr->length; i++)
+		flag = true;
+
+		for( i = 0; i < arr->size; i++)
 			aux_arr[i] = arr->arr[i];
-		for(; i>0; i--)
-			arr->arr[arr->length - i] = aux_arr[i-1];
 
-		free(aux_arr);
-		return true;
+		for(; i > 0; i--)
+			arr->arr[arr->size - i] = aux_arr[i - 1];
+
+		free (aux_arr);
 	}
-	return false;
+
+	return flag;
 }
 
-bool reverse_interchange(array *arr) 
+bool reverse_interchange (array *arr) 
 {
-	if(!underflow(*arr))
+	bool flag = false;
+
+	if (arr && !underflow (*arr))
 	{
-		for(int i=0, j=(arr->length-1); i < j; i++, j--)
-			swap(&(arr->arr[i]),&(arr->arr[j]));
+		flag = true;
 
-		return true;
+		for (int i = 0, j = (arr->size - 1); i < j; i++, j--)
+			swap (&(arr->arr[i]), &(arr->arr[j]));
 	}
 
-	return false;
+	return flag;
 }
 
-bool left_shift(array *arr)
+bool left_shift (array *arr)
 {
-	if(!underflow(*arr))
+	bool flag = false;
+
+	if (arr && !underflow (*arr))
 	{
-		for(int i=0; i < arr->length - 1; i++)
-		{
-			arr->arr[i] = arr->arr[i+1];
-		}
-		arr[arr->length-1] = 0;
+		flag = true;
 
-		return true;
+		for (int i = 0; i < (arr->size - 1); i++)
+			arr->arr[i] = arr->arr[i + 1];
+		arr->arr[arr->size - 1] = 0;
 	}
 
-	return false;
+	return flag;
 }
 
-bool right_shift(array *arr)
+bool right_shift (array *arr)
 {
-	if(!underflow(*arr))
+	bool flag = false;
+
+	if (arr && !underflow (*arr))
 	{
-		for(int i=arr->length - 1; i>0; i--)
-		{
-			arr->arr[i] = arr->arr[i-1];
-		}
-		arr[0] = 0;
+		flag = true;
 
-		return true;
+		for (int i = arr->size - 1; i > 0; i--)
+			arr->arr[i] = arr->arr[i - 1];
+		arr->arr[0] = 0;
 	}
 
-	return false;
+	return flag;
 }
 
-bool rotate_left(array *arr)
+bool rotate_left (array *arr)
 {
+	bool flag = false;
 	int tmp;
-	if(!underflow(*arr))
+
+	if (arr && !underflow (*arr))
 	{
+		flag = true;
+
 		tmp = arr->arr[0];
-		for(int i=0; i < arr->length - 1; i++)
-		{
-			arr->arr[i] = arr->arr[i+1];
-		}
-		arr[arr->length-1] = tmp;
 
-		return true;
+		for (int i = 0; i < arr->size - 1; i++)
+			arr->arr[i] = arr->arr[i + 1];
+
+		arr->arr[arr->size - 1] = tmp;
 	}
 
-	return false;
+	return flag;
 }
 
-bool rotate_right(array *arr)
+bool rotate_right (array *arr)
 {
+	bool flag = false;
 	int tmp;
-	if(!underflow(*arr))
+
+	if (arr && !underflow (*arr))
 	{
-		tmp = arr->arr[arr->length - 1];
-		for(int i = arr->length - 1; i>0; i--)
-		{
+		flag = true;
+
+		tmp = arr->arr[arr->size - 1];
+
+		for (int i = arr->size - 1; i > 0; i--)
+			arr->arr[i] = arr->arr[i - 1];
+
+		arr->arr[0] = tmp;
+	}
+
+	return flag;
+}
+
+bool insert_into_sorted_arr (array *arr, int val)
+{
+	int i;
+	bool flag = false;
+
+	if (arr && !overflow (*arr))
+	{
+		flag = true;
+
+		for (i = ((arr->size)++ - 1); (i > 0)
+				&& (val < arr->arr[i]); i--)
 			arr->arr[i] = arr->arr[i-1];
+		arr->arr[i] = val;
+	}
+
+	return flag;
+}
+
+bool is_sorted (array arr)
+{
+	bool flag = true;
+
+	if (!underflow (arr))
+	{
+		for (int i = 1; i < arr.size; i++)
+		{
+			if (arr.arr[i] < arr.arr[i - 1])
+			{
+				flag = false;
+				break;
+			}
 		}
-		arr[0] = tmp;
-
-		return true;
 	}
 
-	return false;
+	return flag;
 }
 
-bool insert_into_sorted_arr(array *arr, int val)
+// -ve on left and +ve on right
+bool rearrange (array *arr) 
 {
+	bool flag = false;
+	int i, j;
 
-	if(!overflow(*arr))
+	if (arr && !underflow(*arr))
 	{
-		for(int i=(arr->length)++(-1); i>0 && val<arr->arr[i]; i--)
-			arr->arr[i] = arr->arr[i-1]
-				arr->arr[i] = val;
+		flag = true;
+		i = 0, j = arr->size - 1;
 
-		return true;
-	}
-	return false;
-}
-
-bool is_sorted(array arr)
-{
-	if(!underflow(arr))
-	{
-		for(inti=1; i<arr.length; i++)
-			if(arr.arr[i] < arr.arr[i-1])
-				return false;	
-		return true;
-	}
-	return false;
-}
-
-bool rearrage(array *arr) // -ve on left and +ve on right
-{
-	int i = 0;
-	int j = arr->length - 1;
-	if(!underflow(*arr))
-	{
 		while (i < j)
 		{
+			// incr i until +ve ele found
 			while (arr->arr[i] < 0)
-				i++; // incr i until +ve ele found
+				i++;
+			// decr j until -ve ele found
 			while (arr->arr[j] >= 0)
-				j--; // decr j until -ve ele found
+				j--;
+
 			if (i < j)
-				swap(&arr->arr[i], &arr->arr[j]);
+				swap (&arr->arr[i], &arr->arr[j]);
 		}
-		return true;
 	}
-	return false;
+
+	return flag;
 }
 
-array *merge(array *arr1, array *arr2) // actual param should be sorted arrays
+// arrays should be sorted
+array *merge (array *arrx, array *arry)
 {
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
 	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	arr3->size = arr1->size + arr2->size;
-	arr3->length = arr1->length + arr2->length;
-	while (i < arr1->length && j < arr2->length)
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow (*arrx) && !underflow (*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
 	{
-		if (arr1->A[i] < arr2->A[j])
-			arr3->A[k++] = arr1->A[i++];
+		i = j = k = 0;
+
+		arrz->size = arrz->capacity = arrx->size + arry->size;
+
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->capacity)))
+		{
+			while (i < arrx->size && j < arry->size)
+			{
+				if (arrx->arr[i] <= arry->arr[j])
+				{
+					if (arrx->arr[i] == arry->arr[j])
+						arrz->arr[k++] = arry->arr[j++];
+
+					arrz->arr[k++] = arrx->arr[i++];
+				}
+				else
+					arrz->arr[k++] = arry->arr[j++];
+			}
+
+			while (i < arrx->size)
+				arrz->arr[k++] = arrx->arr[i++];
+
+			while (j < arry->size)
+				arrz->arr[k++] = arry->arr[j++];
+		}
 		else
-			arr3->A[k++] = arr2->A[j++];
+		{
+			free (arrz);
+			arrz = NULL;
+		}
+
 	}
-	for (; i < arr1->length; i++)
-		arr3->A[k++] = arr1->A[i];
-	for (; j < arr2->length; j++)
-		arr3->A[k++] = arr2->A[j];
-	return arr3;
-}
-int set_membership(array arr, int key)
-{
-	if (underflow(arr))
-		return 0;
-	int i;
-	for (i = 0; i < arr.length; i++)
-	{
-		if (key == arr.A[i])
-			return 1;
-	}
-	return 0;
+
+	return arrz;
 }
 
-array *union_unsorted(array *arr1, array *arr2)
+bool set_membership (array arr, int key)
 {
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
+	bool flag = false;
+
+	if (!underflow (arr))
+		for (int i = 0; (i < arr.size) && !flag; i++)
+			if (key == arr.arr[i])
+				flag = true;
+
+	return flag;
+}
+
+array *union_unsorted (array *arrx, array *arry)
+{
 	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	for (; i < arr1->length; i++) // copying A in C
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow(*arrx) && !underflow(*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
 	{
-		arr3->A[k++] = arr1->A[i];
-	}
-	arr3->length = k;
-	for (; j < arr2->length; j++)
-		if (!(set_membership(*arr3, arr2->A[j]))) // copying elements of B that are not in C
+		i = j = k = 0;
+
+		arrz->size = 0;
+		arrz->capacity = arrx->size + arry->size;
+
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->capacity)))
 		{
-			arr3->A[k++] = arr2->A[j];
-			arr3->length = k; // updating length of C
+			while (i < arrx->size)
+				arrz->arr[k++] = arrx->arr[i++];
+
+			while (j < arry->size)
+				if (!(set_membership (*arrz, arry->arr[j])))
+					arrz->arr[k++] = arry->arr[j++];
+
+			arrz->size = k;
 		}
-	arr3->size = arr1->length + arr2->length;
-	return arr3;
-}
-array *intersection_unsorted(array *arr1, array *arr2)
-{
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
-	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	for (; i < arr1->length; i++)
-	{
-		if (set_membership(*arr2, arr1->A[i])) // copying elements common to A and B into C.
-		{
-			arr3->A[k++] = arr1->A[i];
-		}
-	}
-	arr3->length = k;
-	arr3->size = arr1->length + arr2->length;
-	return arr3;
-}
-array *difference_unsorted(array *arr1, array *arr2)
-{
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
-	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	for (; i < arr1->length; i++) // copying elements of A to C that are not present in B
-		if (!set_membership(*arr2, arr1->A[i]))
-			arr3->A[k++] = arr1->A[i];
-	arr3->length = k;
-	arr3->size = arr1->length + arr2->length;
-	return arr3;
-}
-array *arr_union(array *arr1, array *arr2) // sorted arrays are passed as actual param
-{
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
-	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	while (i < arr1->length && j < arr2->length)
-	{
-		if (arr1->A[i] < arr2->A[j])
-			arr3->A[k++] = arr1->A[i++];
-		else if (arr2->A[j] < arr1->A[i])
-			arr3->A[k++] = arr2->A[j++];
-		else // if both element are equal only one is copied and ptrs are incremented
-		{
-			arr3->A[k++] = arr1->A[i++];
-			j++;
-		}
-	} // Remaining Elements of either of A and B are copied into C
-	for (; i < arr1->length; i++)
-		arr3->A[k++] = arr1->A[i];
-	for (; j < arr2->length; j++)
-		arr3->A[k++] = arr2->A[j];
-	arr3->size = arr1->length + arr2->length;
-	arr3->length = k;
-	return arr3;
-}
-array *intersection(array *arr1, array *arr2) // sorted arrays are passed as actual param
-{
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
-	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	while (i < arr1->length && j < arr2->length)
-	{
-		if (arr1->A[i] < arr2->A[j])
-			i++;
-		else if (arr2->A[j] < arr1->A[i])
-			j++;
-		else // Elements that are present in both A and B are copied to C
-		{
-			arr3->A[k++] = arr1->A[i++];
-			j++;
-		}
-	} // Remaining elements in any array are not copied
-	arr3->size = arr1->length + arr2->length;
-	arr3->length = k;
-	return arr3;
-}
-array *difference(array *arr1, array *arr2) // sorted array are passed
-{
-	if (underflow(*arr1) && underflow(*arr2))
-		return NULL;
-	int i, j, k;
-	i = j = k = 0;
-	array *arr3;
-	arr3 = (array *)malloc(sizeof(array));
-	while (i < arr1->length && j < arr2->length)
-	{
-		if (arr1->A[i] < arr2->A[j]) // Only elements that belong to A are copied to C
-			arr3->A[k++] = arr1->A[i++];
-		else if (arr2->A[j] < arr1->A[i])
-			j++;
 		else
 		{
-			i++;
-			j++;
+			free (arrz);
+			arrz = NULL;
+		}
+
+	}
+
+	return arrz;
+}
+
+array *intersection_unsorted (array *arrx, array *arry)
+{
+	int i, j;
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow (*arrx) && !underflow (*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
+	{
+		i = j = 0;
+
+		arrz->size = 0;
+		arrz->capacity = arrx->size < arry->size ? arrx->size : arry->size;
+
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->capacity)))
+		{
+			while (i < arrx->size)
+				if (set_membership (*arry, arrx->arr[i]))
+					arrz->arr[j++] = arrx->arr[i++];
+
+			arrz->size = j;
+		}
+		else
+		{
+			free (arrz);
+			arrz = NULL;
 		}
 	}
-	for (; i < arr1->length; i++) // Remaining elements in A are copied into C
-		arr3->A[k++] = arr1->A[i];
-	arr3->size = arr1->length + arr2->length;
-	arr3->length = k;
-	return arr3;
+
+	return arrz;
 }
-int main(int argc, char const *argv[])
+
+array *difference_unsorted (array *arrx, array *arry)
 {
-	array arr;
+	int i, j;
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow (*arrx) && !underflow (*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
+	{
+		arrz->size = 0;
+		arrz->capacity = arrx->capacity;
+
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->capacity)))
+		{
+			while (i < arrx->size)
+				if (!set_membership (*arry, arrx->arr[i]))
+					arrz->arr[j++] = arrx->arr[i++];
+
+			arrz->size = j;
+		}
+		else
+		{
+			free (arrz);
+			arrz = NULL;
+		}
+	}
+
+	return arrz;
+}
+
+// sorted arrays are passed as actual param
+array *array_union (array *arrx, array *arry)
+{
+	int i, j, k;
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow (*arrx) && !underflow (*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
+	{
+		i = j = k = 0;
+		arrz->size = 0;
+		arrz->capacity = arrx->size + arry->size;
+
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->capacity)))
+		{
+			while ((i < arrx->size) && (j < arry->size))
+			{
+				if (arrx->arr[i] < arry->arr[j])
+					arrz->arr[k++] = arrx->arr[i++];
+				else if (arry->arr[j] < arrx->arr[i])
+					arrz->arr[k++] = arry->arr[j++];
+				else
+				{
+					// if both element are equal only one is copied and ptrs are incremented
+					j++;
+					arrz->arr[k++] = arrx->arr[i++];
+				}
+			}
+
+			// remaining elements of either of A or B are copied into C
+			while (i < arrx->size)
+				arrz->arr[k++] = arrx->arr[i++];
+
+			while (j < arry->size)
+				arrz->arr[k++] = arry->arr[j++];
+
+			arrz->size = k;
+		}
+		else
+		{
+			free (arrz);
+			arrz = NULL;
+		}
+	}
+
+	return arrz;
+}
+
+// sorted arrays are passed as actual param
+array *intersection (array *arrx, array *arry)
+{
+	int i, j, k;
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow (*arrx) && !underflow (*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
+	{
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->size)))
+		{
+			while ((i < arrx->size) && (j < arry->size))
+			{
+				if (arrx->arr[i] < arry->arr[j])
+					i++;
+				else if (arry->arr[j] < arrx->arr[i])
+					j++;
+				else
+				{
+					// elements that are present in both A and B are copied to C
+					j++;
+					arrz->arr[k++] = arrx->arr[i++];
+				}
+
+				arrz->size = k;
+			}
+		}
+		else
+		{
+			free (arrz);
+			arrz = NULL;
+		}
+
+	}
+
+	return arrz;
+}
+
+// sorted arrays are passed
+array *difference (array *arrx, array *arry)
+{
+	int i, j, k;
+	array *arrz = NULL;
+
+	if (arrx && arry && !underflow (*arrx) && !underflow (*arry)
+			&& (arrz = (array *) malloc (sizeof (array))))
+	{
+		i = j = k = 0;
+		arrz->size = 0;
+		arrz->capacity = arrx->size;
+
+		if ((arrz->arr = (int *) malloc (sizeof (int) * arrz->capacity)))
+		{
+			while ((i < arrx->size) && (j < arry->size))
+			{
+				// only elements that belong to A are copied to C
+				if (arrx->arr[i] < arry->arr[j])
+				{
+					arrz->arr[k++] = arrx->arr[i++];
+				}
+				else if (arry->arr[j] == arrx->arr[i])
+				{
+					i++;
+					j++;
+				}
+				else
+				{
+					j++;
+				}
+			}
+
+			// remaining elements in A are copied into C
+			while (i < arrx->size)
+				arrz->arr[k++] = arrx->arr[i++];
+
+			arrz->size = k;
+		}
+		else
+		{
+			free (arrz);
+			arrz = NULL;
+		}
+	}
+
+	return arrz;
+}
+
+int main (int argc, char const *argv[])
+{
+	array arrx, arry;
+
+	if ((arrx.arr = (int *) malloc (sizeof (int) * M))
+			&& (arry.arr = (int *) malloc (sizeof (int) * N)))
+	{
+		free (arrx.arr);
+		free (arry.arr);
+	}
+
 	return 0;
 }

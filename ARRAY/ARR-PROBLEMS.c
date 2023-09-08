@@ -1,184 +1,292 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
 
-void SingleMissingNatural(int A[], int n) // natural numbers array must start form 1
+// natural numbers array must start form 1
+void SingleMissingNatural (int A[], int n)
 {
-    int sum = 0, s;
-    s = A[n - 1] * (A[n - 1] + 1) / 2;
-    for (int i = 0; i < n; i++)
-    {
-        sum += A[i];
-    }
-    printf("%d \n", s - sum);
+	int s, sum;
+
+	if (A && (n > 0))
+	{
+		sum = 0;
+		s = A[n - 1] * (A[n - 1] + 1) / 2;
+
+		for (int i = 0; i < n; i++)
+			sum += A[i];
+
+		printf("missing element = %d \n", s - sum);
+	}
+
+	return ;
 }
-void SingleMissingSorted(int A[], int n) // increasing sequence of natural no.s
+
+// increasing sequence of natural no.s
+void SingleMissingSorted (int A[], int n)
 {
-    int diff; // arr can start from anywhere
-    diff = A[0] - 0;
-    for (int i = 0; i < n; i++)
-    {
-        if (A[i] - i != diff)
-        {
-            printf("%d \n", diff + i);
-            break;
-        }
-    }
+	int diff;
+
+	if (A && (n > 0))
+	{
+		diff = A[0] - 0;
+
+		for (int i = 0; i < n; i++)
+		{
+			if ((A[i] - i) != diff)
+			{
+				printf ("missing element = %d \n", diff + i);
+				break;
+			}
+		}
+
+
+	}
+
+	return ;
 }
-void MultipleMissingSorted(int A[], int n) // increasing sequence of natural no.s with one or more missing elements in between any two elements anywhere
+
+// increasing sequence of natural no.s with one or more missing elements in between any two elements anywhere
+void MultipleMissingSorted (int A[], int n)
 {
-    int diff = A[0] - 0; // arr can start from anywhere
-    for (int i = 0; i < n; i++)
-    {
-        if (A[i] - i != diff)
-        {
-            while (diff < A[i] - i)
-            {
-                printf("%d \n", diff + i);
-                diff++;
-            }
-        }
-    }
+	int diff;
+
+	if (A && (n > 0))
+	{
+		diff = A[0] - 0;
+
+		for (int i = 0; i < n; i++)
+		{
+			if ((A[i] - i) != diff)
+			{
+				while (diff < (A[i] - i))
+				{
+					printf ("%d ", diff + i);
+					diff += 1;
+				}
+			}
+		}
+
+		printf ("\n");
+	}
+
+	return ;
 }
-void MultipleMissingUnsortedHash(int A[], int n, int l, int h) // sequence of natural no.s starting from l upto h
+
+// sequence of natural no.s starting from l upto h
+void MultipleMissingUnsortedHash (int A[], int n, int l, int h)
 {
-    // create an Hashing array of length h+1
-    int *H;
-    H = (int *)malloc(sizeof(int) * (h + 1));
-    for (int i = 0; i <= h; i++) // init its all elements to 0
-        H[i] = 0;
-    for (int i = 0; i < n; i++) // scan through all ele of A and increment
-        H[A[i]]++;
-    for (int i = l; i <= h; i++)
-    {
-        if (H[i] == 0)
-            printf("%d ", i);
-    }
-    printf("\n");
+	int *H = NULL;
+
+	if (A && (n > 0) && (l > 0) && (h >= l)
+			&& (H = (int *) calloc ((h + 1), sizeof (int))))
+	{
+		for (int i = 0; i < n; i++)
+			H[A[i]] += 1;
+
+		for (int i = l; i <= h; i++)
+			if (!H[i])
+				printf ("%d ", i);
+
+		printf ("\n");
+
+		free (H);
+	}
+
+	return ;
 }
-void DuplicateSorted(int A[], int n) // prints duplicate element in sorted array
+
+// prints duplicate element in sorted array
+void DuplicateSorted (int A[], int n)
 {
-    int lastDuplicate = 0;
-    for (int i = 0; i < n - 1; i++)
-    {
-        if (A[i] == A[i + 1] && A[i] != lastDuplicate)
-        {
-            printf("%d ", A[i]);
-            lastDuplicate = A[i];
-        }
-    }
-    printf("\n");
+	int duplicate;
+
+	if (A && (n > 0))
+	{
+		duplicate = INT_MIN;
+
+		for (int i = 0; i < (n - 1); i++)
+		{
+			if ((A[i] == A[i + 1]) && (A[i] != duplicate))
+			{
+				duplicate = A[i];
+				printf ("%d ", A[i]);
+			}
+		}
+
+		printf("\n");
+	}
+
+	return ;
 }
-void DuplicateCountSorted(int A[], int n)
+
+void DuplicateCountSorted (int A[], int n)
 {
-    int j = 0;
-    for (int i = 0; i < n - 1; i++)
-    {
-        if (A[i] == A[i + 1])
-        {
-            j = i + 1;
-            while (A[j] == A[i])
-                j++;
-            printf("%d is appeared %d times\n", A[i], j - i);
-            i = j - 1;
-        }
-    }
+	if (A && (n > 0))
+	{
+		for (int i = 0, j = 0; i < (n - 1); i++)
+		{
+			if (A[i] == A[i + 1])
+			{
+				j = i + 1;
+
+				while (A[j] == A[i])
+					j += 1;
+
+				printf ("%d repeats %d times\n", A[i], j - i);
+
+				i = j - 1;
+			}
+		}
+
+	}
+
+	return ;
 }
-void DuplicateCountHashing(int A[], int n, int l, int h)
-{ // array may or may not be sorted
-    // create an Hashing array of length h+1
-    int *H;
-    H = (int *)malloc(sizeof(int) * (h + 1));
-    for (int i = 0; i <= h; i++) // init its all elements to 0
-        H[i] = 0;
-    for (int i = 0; i < n; i++) // scan through all ele of A and increment index of H
-        H[A[i]]++;
-    for (int i = l; i <= h; i++)
-    {
-        if (H[i] > 1)
-            printf("%d appears %d times\n", i, H[i]);
-    }
-    printf("\n");
-}
-void DuplicateCountUnsorted(int A[], int n) // if duplicate is found it is made -1 to avoid getting it counted again
+
+void DuplicateCountHashing (int A[], int n, int l, int h)
 {
-    int i, j;
-    int count;
-    for (i = 0; i < n - 1; i++)
-    {
-        count = 1;
-        if (A[i] != -1)
-        {
-            for (j = i + 1; j < n; j++)
-            {
-                if (A[j] == A[i])
-                {
-                    count++;
-                    A[j] = -1;
-                }
-            }
-            if (count > 1)
-                printf("%d appears %d times\n", A[i], count);
-        }
-    }
+	// array may or may not be sorted
+	// create an hashing array of length h + 1
+
+	int *H = NULL;
+
+	if (A && (n > 0) && (l > 0) && (h >= l)
+			&& (H = (int *) calloc ((h + 1), sizeof (int))))
+	{
+		for (int i = 0; i < n; i++)
+			H[A[i]] += 1;
+
+		for (int i = l; i <= h; i++)
+			if (H[i] > 1)
+				printf ("%d repeats %d times\n", i, H[i]);
+		printf ("\n");
+
+		free (H);
+	}
+
+	return ;
 }
-void PairSum(int A[], int n, int k) // n is length and k is sum to of pair to be found
-{                                   // arr with no duplicates may be sorted or unsorted
-    int i, j;
-    for (i = 0; i < n - 1; i++)
-    {
-        for (j = i + 1; j < n; j++)
-        {
-            if (A[i] + A[j] == k)
-                printf("%d + %d = %d\n", A[i], A[j], k);
-        }
-    }
-}
-void PairSumHash(int A[], int n, int k, int h) // arr with no duplicates
+
+// if duplicate is found it is made -1 to avoid getting it counted again
+void DuplicateCountUnsorted(int A[], int n)
 {
-    int *H, i, j;
-    H = (int *)malloc(sizeof(int) * (h + 1));
-    for (i = 0; i < n - 1; i++)
-    {
-        if (H[k - A[i]] != 0)
-        {
-            printf("%d + %d = %d\n", A[i], k - A[i], k);
-        }
-        H[A[i]]++;
-    }
+	int count;
+
+	if (A && (n > 0))
+	{
+		for (int i = 0; i < (n - 1); i++)
+		{
+			count = 1;
+
+			if (A[i] != -1)
+			{
+				for (int j = i + 1; j < n; j++)
+				{
+					if (A[j] == A[i])
+					{
+						A[j] = -1;
+						count += 1;
+					}
+				}
+
+				if (count > 1)
+					printf("%d repeats %d times\n", A[i], count);
+			}
+		}
+
+	}
+
+	return ;
 }
+
+// arr with no duplicates may be sorted or unsorted
+// n is length and k is sum to of pair to be found
+void PairSum (int A[], int n, int k)
+{
+	if (A && (n > 0))
+		for (int i = 0; i < n; i++)
+			for (int j = i + 1; j < n; j++)
+				if ((A[i] + A[j]) == k)
+					printf ("%d + %d = %d\n", A[i], A[j], k);
+
+	return ;
+}
+
+// arr with no duplicates
+void PairSumHash (int A[], int n, int k, int h)
+{
+	int *H  = NULL;
+
+	if (A && (n > 0) && (H = (int *) calloc ((h + 1), sizeof (int))))
+	{
+		for (int i = 0; i < n; i++)
+		{
+			H[A[i]] += 1;
+
+			if (H[k - A[i]])
+				printf("%d + %d = %d\n", A[i], k - A[i], k);
+		}
+
+		free (H);
+	}
+
+	return ;
+}
+
 void PairSumSorted(int A[], int n, int k)
 {
-    int i = 0, j = n - 1;
-    while (i < j)
-    {
-        if (A[i] + A[j] == k)
-        {
-            printf("%d + %d = %d\n", A[i], A[j], k);
-            i++;
-            j--;
-        }
-        else if (A[i] + A[j] < k)
-            i++;
-        else
-            j--;
-    }
+	int i, j;
+
+	if (A && (n > 0))
+	{
+		i = 0, j = n - 1;
+
+		while (i < j)
+		{
+			if ((A[i] + A[j]) == k)
+			{
+				printf ("%d + %d = %d\n", A[i], A[j], k);
+				i += 1, j -= 1;
+			}
+			else if ((A[i] + A[j]) < k)
+				i++;
+			else
+				j--;
+		}
+	}
+
+	return ;
 }
-void MinMax(int A[], int n)
+
+void MinMax (int A[], int n)
 {
-    int min, max, i;
-    min = max = A[0];
-    for (i = 1; i < n; i++)
-    {
-        if (A[i] < min) // best case if array is sorted descending
-            min = A[i];
-        else if (A[i] > max) // worst case if array sorted ascending
-            max = A[i];
-    }
-    printf("%d %d", min, max);
+	int min, max;
+
+	if (A && (n > 0))
+	{
+		min = max = A[0];
+
+		for (int i = 1; i < n; i++)
+		{
+			// best case if array is sorted descending
+			if (A[i] < min)
+				min = A[i];
+			// worst case if array sorted ascending
+			else if (A[i] > max)
+				max = A[i];
+		}
+
+		printf ("%d, %d\n", min, max);
+	}
+
+	return ;
 }
-int main(int argc, char const *argv[])
+
+int main (int argc, char const *argv[])
 {
-    int A[10] = {1, 50, 4, -5, 6, 7, 18, 9, -12, 14};
-    MinMax(A, 10);
-    return 0;
+	int A[10] = {1, 50, 4, -5, 6, 7, 18, 9, -12, 14};
+
+	MinMax (A, 10);
+
+	return 0;
 }
