@@ -1,431 +1,655 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <limits.h>
 
 struct Node
 {
-    int data;
-    struct Node *next;
-} *first = NULL, *second = NULL, *third = NULL, *last = NULL; // global ptr
+	int data;
+	struct Node *next;
+};
 
-struct Node *Create(struct Node *head, int A[], int n)
+struct Node *Create (struct Node **list, int A[], int n)
 {
-    struct Node *t, *last;
-    int i;
-    head = (struct Node *)malloc(sizeof(struct Node));
-    head->data = A[0];
-    head->next = NULL;
-    last = head;
-    for (i = 1; i < n; i++)
-    {
-        t = (struct Node *)malloc(sizeof(struct Node));
-        t->data = A[i];
-        t->next = NULL;
-        last->next = t;
-        last = t;
-    }
-    return head;
-}
-void IDisplay(struct Node *p)
-{
-    while (p != NULL)
-    {
-        printf("%d ", p->data);
-        p = p->next;
-    }
-    printf("\n");
-}
-void RDisplay(struct Node *p)
-{
-    if (p != NULL)
-    {
-        printf("%d ", p->data);
-        RDisplay(p->next);
-    }
-}
-int ICount(struct Node *p)
-{
-    int cnt = 0;
-    while (p)
-    {
-        cnt++;
-        p = p->next;
-    }
-    return cnt;
+	struct Node *head = NULL, *tmp = NULL, *prev = NULL;
+
+	if (A && (n > 0) && (head = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		head->data = A[0];
+		head->next = NULL;
+
+		prev = head;
+
+		for (int cnt = 1; cnt < n; cnt++)
+		{
+			if ((tmp = (struct Node *) malloc (sizeof (struct Node))))
+			{
+				tmp->data = A[cnt];
+				tmp->next = NULL;
+
+				prev->next = tmp;
+				prev = tmp;
+			}
+			else
+				printf ("dynamic allocation failed!\n");
+		}
+	}
+
+	if (list)
+		*list = head;
+
+	return head;
 }
 
-int RCount(struct Node *p)
+void IDisplay (struct Node *lst)
 {
-    if (p != NULL)
-        return RCount(p->next) + 1;
-    else
-        return 0;
-}
-int ISum(struct Node *p)
-{
-    int i, s = 0;
-    while (p)
-    {
-        s += p->data;
-        p = p->next;
-    }
-    return s;
-}
-int RSum(struct Node *p)
-{
-    if (!p)
-        return 0;
-    return RSum(p->next) + p->data;
-}
-int IMax(struct Node *p)
-{
-    int max = INT_MIN;
-    while (p)
-    {
-        if (p->data > max)
-            max = p->data;
-        p = p->next;
-    }
-    return max;
-}
-int RMax(struct Node *p)
-{
-    int x = 0;
-    if (!p)
-        return INT_MIN;
-    else
-    {
-        x = RMax(p->next);
-        if (x > p->data)
-        {
-            return x;
-        }
-        else
-            return p->data;
-    }
-}
-int RMaxIm(struct Node *p)
-{
-    int x = 0;
-    if (!p)
-        return INT_MIN;
-    x = RMaxIm(p->next);
-    return x > p->data ? x : p->data;
-}
-struct Node *ILinearSearch(struct Node *p, int key)
-{
-    while (p)
-    {
-        if (p->data == key)
-            return p; // return address of node
-        p = p->next;
-    }
-    return NULL;
-}
-struct Node *RLinearSearch(struct Node *p, int key)
-{
-    if (!p)
-        return NULL;
-    if (key == p->data)
-        return p;
-    return RLinearSearch(p->next, key);
-}
-struct Node *ILinearSearchMove2Front(struct Node *p, int key)
-{
-    struct Node *q = NULL; // tail ptr
-    while (p)
-    {
-        if (key == p->data)
-        {
-            q->next = p->next;
-            p->next = first;
-            first = p;
-            return p;
-        }
-        q = p;
-        p = p->next;
-    }
-    return NULL;
-}
-void Insert(struct Node *p, int index, int x)
-{
-    struct Node *t;
-    if (index < 0 || index > ICount(p)) // check if index is valid or not
-        return;
-    t = (struct Node *)malloc(sizeof(struct Node));
-    t->data = x;
-    if (index == 0)
-    {
-        t->next = first;
-        first = t;
-    }
-    else
-    {
-        for (int i = 0; (i < index - 1 /*&& p*/); i++) // move p until it points to node at index
-            p = p->next;
-        t->next = p->next; // if(p) and above condtion can be used when there is no index check at start
-        p->next = t;
-    }
-}
-void Append(int x) // node will be surely inserted
-{
-    struct Node *t = NULL;
-    t = (struct Node *)malloc(sizeof(struct Node));
-    t->data = x;
-    t->next = NULL;
-    if (first == NULL)
-    {
-        first = last = t;
-    }
-    else
-    {
-        last->next = t;
-        last = t;
-    }
-}
-void InsertSorted(struct Node *p, int x)
-{
-    struct Node *t, *q = NULL;
-    t = (struct Node *)malloc(sizeof(struct Node));
-    t->data = x;
-    t->next = NULL;
+	while (lst)
+	{
+		printf ("%d ", lst->data);
+		lst = lst->next;
+	}
+	printf("\n");
 
-    if (!first) // check if list is empty then make first point to t
-    {
-        first = t;
-    }
-    else
-    {
-        while (p && p->data < x) // move p until data is less than x and null is not reached
-        {
-            q = p;
-            p = p->next;
-        }
-        if (p == first) // if data is smaller than first node
-        {
-            t->next = first;
-            first = t;
-        }
-        else
-        {
-            t->next = p;
-            q->next = t;
-        }
-    }
+	return ;
 }
-int Delete(struct Node *p, int index)
+
+void RDisplay (struct Node *lst)
 {
-    struct Node *q = NULL;
-    int x = -1, i;
-    if (index < 1 || index > ICount(p)) // is index valid
-    {
-        return x;
-    }
-    // If node to be deleted is first
-    if (index == 1)
-    {
-        q = first;
-        first = first->next;
-        x = q->data;
-        free(q);
-        return x;
-    }
-    else // Any other node
-    {
-        for (i = 0; i < index - 1; i++) // move p on node with given index
-        {
-            q = p; // q is a tail ptr
-            p = p->next;
-        }
-        q->next = p->next; // link q with node after p
-        x = p->data;
-        free(p);
-        return x;
-    }
+	if (lst)
+	{
+		printf ("%d ", lst->data);
+		RDisplay (lst->next);
+	}
+
+	return ;
 }
-int IsSorted(struct Node *p)
+
+int ICount (struct Node *p)
 {
-    int x = INT_MIN;
-    while (p)
-    {
-        if (p->data < x)
-            return 0;
-        x = p->data;
-        p = p->next;
-    }
-    return 1;
+	int cnt = 0;
+
+	while (p)
+	{
+		cnt++;
+		p = p->next;
+	}
+
+	return cnt;
 }
-void RemoveDuplicates(struct Node *p) // p is tail ptr
+
+int RCount (struct Node *p)
 {
-    struct Node *q = p->next;
-    while (q)
-    {
-        if (p->data != q->data) // different data, go further
-        {
-            p = q;
-            q = q->next;
-        }
-        else // two nodes have same data
-        {
-            p->next = q->next;
-            free(q);
-            q = p->next;
-        }
-    }
+	if (p)
+		return RCount (p->next) + 1;
+
+	return 0;
 }
-void ReverseElements(struct Node *p)
+
+int ISum (struct Node *p)
 {
-    int i = 0, *A;
-    struct Node *q = NULL;
-    A = (int *)malloc(sizeof(int) * ICount(p));
-    q = p;
-    while (q) // copy data of node to arr
-    {
-        A[i] = q->data;
-        q = q->next;
-        i++;
-    }
-    q = p;    // make q point to start again
-    i--;      // decrement i to keep it on last ele
-    while (q) // copy ele of arr to data of node
-    {
-        q->data = A[i];
-        q = q->next;
-        i--;
-    }
+	int s = INT_MIN;
+
+	if (p)
+	{
+		s = 0;
+		while (p)
+		{
+			s += p->data;
+			p = p->next;
+		}
+	}
+
+	return s;
 }
-void ReverseLinksSlidingPtrs(struct Node *p)
+
+int RSum (struct Node *p)
 {
-    struct Node *q, *r;
-    r = q = NULL;
-    while (p)
-    {
-        r = q;
-        q = p;
-        p = p->next;
-        q->next = r; // reverse link of node with q as ptr, q will reverse link of last node
-    }
-    first = q; // make first to point at q
+	if (!p)
+		return 0;
+
+	return (RSum (p->next) + p->data);
 }
-void ReverseRecursion(struct Node *q, struct Node *p) // pass q as NULL and p as first
+
+int IMax (struct Node *p)
 {
-    if (p)
-    {
-        ReverseRecursion(p, p->next); // move q to p and p to next node
-        p->next = q;                  // reverse link of p wtih q
-    }
-    else
-        first = q; // make q as first since q will be on the last node, which will become first node
+	int max = INT_MIN;
+
+	while (p)
+	{
+		if (p->data > max)
+			max = p->data;
+
+		p = p->next;
+	}
+
+	return max;
 }
-void Concatanate(struct Node *p, struct Node *q)
+
+int RMax (struct Node *p)
 {
-    third = p;              // make third ptr point on p
-    while (p->next != NULL) // move p until its next is not null
-    {
-        p = p->next;
-    }
-    p->next = q;
-    q = NULL;
+	int max = INT_MIN;
+
+	if (p)
+	{
+		max = RMax (p->next);
+
+		if (max < p->data)
+		{
+			max = p->data;
+		}
+	}
+
+	return max;
 }
-void Merge(struct Node *p, struct Node *q) // pass head ptr of lists to be merged
-{                                          // both list must be sorted
-    struct Node *last;
-    if (p->data < q->data)
-    {
-        third = last = p;
-        p = p->next;
-        last->next = NULL;
-    }
-    else
-    {
-        third = last = q;
-        q = q->next;
-        last->next = NULL;
-    }
-    while (p && q) // move p and q until one of them reaches null
-    {
-        if (p->data < q->data)
-        {
-            last->next = p;
-            last = p;
-            p = p->next;
-            last->next = NULL;
-        }
-        else
-        {
-            last->next = q;
-            last = q;
-            q = q->next;
-            last->next = NULL;
-        }
-    }
-    if (p)
-        last->next = p;
-    else
-        last->next = q;
-}
-int IsLoop(struct Node *f)
+
+struct Node *ILinearSearch (struct Node *p, int key)
 {
-    struct Node *p, *q;
-    p = q = f;
-    do
-    {
-        p = p->next;
-        q = q->next;
-        q = q ? q->next : q;
-    } while (p && q && p != q);
-    if (p == q)
-        return 1;
-    return 0;
+	struct Node *ret = NULL;
+
+	while (p)
+	{
+		if (p->data == key)
+		{
+			ret = p;
+			break;
+		}
+
+		p = p->next;
+	}
+
+	return ret;
 }
-void MiddleNode(struct Node *p)
+
+struct Node *RLinearSearch (struct Node *p, int key)
 {
-    struct Node *q;
-    q = p;
-    while (q)
-    {
-        q = q->next;
-        if (q)
-            q = q->next;
-        if (q)
-            p = p->next;
-    }
-    printf("%d ", p->data);
+	struct Node *ret = NULL;
+
+	if (p)
+	{
+		if (p->data == key)
+		{
+			ret = p;
+		}
+		else
+		{
+			ret = RLinearSearch (p->next, key);
+		}
+	}
+
+	return ret;
 }
-void IntersectionNode(struct Node *p, struct Node *q) 
+
+struct Node *ILinearSearchMove2Front (struct Node *lst, int key)
+{
+	struct Node *curr = NULL, *prev = NULL;
+
+	if (lst)
+	{
+		curr = lst;
+
+		while (curr && (curr->data != key))
+		{
+			prev = curr;
+			curr = curr->next;
+		}
+
+		if (curr)
+		{
+			prev->next = curr->next;
+			curr->next = lst;
+
+			lst = curr;
+		}
+	}
+
+	return lst;
+}
+
+struct Node *Insert (struct Node *lst, int index, int x)
+{
+	struct Node *new = NULL, *ptr = NULL;
+
+	if (((index >= 0) && (index <= ICount (lst)))
+			&& (new = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		ptr = lst;
+
+		new->data = x;
+		new->next = NULL;
+
+		if (!index)
+		{
+			new->next = lst;
+			lst = new;
+		}
+		else
+		{
+			for (int i = 0; i < (index - 1); i++)
+				ptr = ptr->next;
+
+			new->next = ptr->next;
+			ptr->next = new;
+		}
+	}
+
+	return lst;
+}
+
+// node will be surely inserted
+struct Node *Append (struct Node *lst, int x)
+{
+	struct Node *new = NULL, *ptr = NULL;
+
+	if ((new = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		new->data = x;
+		new->next = NULL;
+
+		if (lst)
+		{
+			ptr = lst;
+			while (ptr->next)
+				ptr = ptr->next;
+
+			ptr->next = new;
+		}
+		else
+		{
+			lst = new;
+		}
+	}
+
+	return lst;
+}
+
+struct Node *InsertSorted (struct Node *lst, int x)
+{
+	struct Node *new = NULL, *prev = NULL, *curr = NULL;
+
+	if ((new = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		new->data = x;
+		new->next = NULL;
+
+		if (!lst)
+			lst = new;
+		else
+		{
+			while (curr && (curr->data < x))
+			{
+				prev = curr;
+				curr = curr->next;
+			}
+
+			new->next = curr;
+
+			// if data is smaller than first node
+			if (curr == lst)
+				lst = new;
+			else
+			{
+				prev->next = new;
+			}
+		}
+	}
+
+	return lst;
+}
+
+struct Node *Delete (struct Node *lst, int idx)
+{
+	struct Node *prev = NULL, *curr = NULL;
+
+	if (lst && ((idx >= 0) && (idx < ICount (lst))))
+	{
+		if (!idx)
+		{
+			prev = lst;
+			lst = lst->next;
+
+			free (prev);
+		}
+		else
+		{
+			curr = lst;
+
+			for (int i = 0; i < idx; i++)
+			{
+				prev = curr;
+				curr = curr->next;
+			}
+
+			prev->next = curr->next;
+
+			free (curr);
+		}
+	}
+
+	return lst;
+}
+
+bool IsSorted (struct Node *p)
+{
+	int next = INT_MIN;
+	bool flag = true;
+
+	while (p && p->next && flag)
+	{
+		next = p->next->data;
+
+		if (p->data > next)
+			flag = false;
+
+		p = p->next;
+	}
+
+	return flag;
+}
+
+struct Node *RemoveDuplicates (struct Node *lst)
+{
+	struct Node *prev = NULL, *curr = NULL, *tmp = NULL;
+
+	if (lst)
+	{
+		curr = lst;
+
+		while (curr)
+		{
+			prev = curr;
+			curr = curr->next;
+
+			if (prev->data == curr->data)
+			{
+				prev->next = curr->next;
+
+				free (curr);
+
+				curr = prev->next;
+			}
+		}
+	}
+
+	return lst;
+}
+
+struct Node *ReverseElements (struct Node *lst)
+{
+	int cnt, idx;
+	int *aux = NULL;
+	struct Node *ptr = NULL;
+
+	if (lst) 
+	{
+		idx = 0;
+		cnt = ICount (lst);
+
+		if ((cnt > 0) && (aux = (int *) malloc (cnt * sizeof (int))))
+		{
+			ptr = lst;
+
+			while (ptr)
+			{
+				aux [idx] = ptr->data;
+
+				ptr = ptr->next;
+				idx += 1;
+			}
+
+			ptr = lst;
+			idx -= 1;
+
+			while (ptr)
+			{
+				ptr->data = aux[idx];
+
+				ptr = ptr->next;
+				idx += 1;
+			}
+
+		}
+	}
+
+	return lst;
+}
+
+// reverse link of node with curr as ptr (point to prev),
+// curr will reverse link of last node in list
+struct Node *ReverseLinksSlidingPtrs (struct Node *lst)
+{
+	struct Node *prev = NULL, *curr = NULL;
+	while (lst)
+	{
+		prev = curr;
+		curr = lst;
+
+		lst = lst->next;
+		curr->next = prev;
+	}
+
+	if (curr)
+	{
+		lst = curr;
+	}
+
+	return lst;
+}
+
+// pass prev as NULL and curr as head
+struct Node *ReverseRecursion (struct Node *prev, struct Node *curr)
+{
+	// move prev to curr and curr to next node
+	// reverse link of curr wtih prev
+
+	struct Node *head = NULL;
+
+	// make q as first since q will be on the last node, which will become first node
+
+	if (!curr)
+		head = prev;
+	else
+	{
+		head = ReverseRecursion (curr, curr->next);
+		curr->next = prev;
+	}
+
+	return head;
+}
+
+struct Node *Concatanate (struct Node *one, struct Node *two)
+{
+	struct Node *head = NULL;
+
+	if (one && two)
+	{
+		while (one->next)
+			one = one->next;
+
+		one->next = two;
+		head = one;
+	}
+	else if (one || two)
+	{
+		if (one)
+			head = one;
+		else
+		{
+			head = two;
+		}
+	}
+
+	return head;
+}
+
+// pass head ptr of lists to be merged
+// both list must be sorted
+struct Node *Merge (struct Node *one, struct Node *two)
+{
+	struct Node *head = NULL, *tail = NULL;
+
+	if (one && two)
+	{
+		if (one->data < two->data)
+		{
+			head = one;
+			one = one->next;
+		}
+		else
+		{
+			head = two;
+			two = two->next;
+		}
+		tail = head;
+
+		while (one && two)
+		{
+			if (one->data < two->data)
+			{
+				tail->next = one;
+				tail = one;
+
+				one = one->next;
+			}
+			else
+			{
+				tail->next = two;
+				tail = two;
+
+				two = two->next;
+			}
+
+		}
+
+		if (one)
+			tail->next = one;
+		else if (two)
+		{
+			tail->next = two;
+		}
+	}
+	else if (one || two)
+	{
+		if (one)
+			head = one;
+		else
+		{
+			head = two;
+		}
+	}
+
+	return head;
+}
+
+bool IsLoop (struct Node *lst)
+{
+	bool flag = false;
+	struct Node *slow = NULL, *fast = NULL;
+
+	if (lst)
+	{
+		slow = fast = lst;
+
+		do
+		{
+			slow = slow->next;
+			fast = fast->next;
+
+			if (fast)
+			{
+				fast = fast->next;
+			}
+
+		} while (slow && fast && (slow != fast));
+
+		if (slow == fast)
+		{
+			flag = true;
+		}
+	}
+
+	return flag;
+}
+
+struct Node *MiddleNode (struct Node *lst)
+{
+	struct Node *slow = NULL, *fast = NULL;
+
+	if (lst)
+	{
+		slow = fast = lst;
+
+		while (fast)
+		{
+			fast = fast->next;
+
+			if (fast)
+			{
+				fast = fast->next;
+				slow = slow->next;
+			}
+		}
+	}
+
+	return slow;
+}
+
 // store address of all nodes of both lists in two stacks then pop values if they are same, 
-//retain copy of last popped node, return that node or print data of intersection node
+// retain copy of last popped node, return that node or print data of intersection node
+/*
+void IntersectionNode (struct Node *one, struct Node *two) 
 {
-    struct Node *r;
-    r = p;
-    while (r)
-    {
-        push(&stk1, r);
-    }
-    r = q;
-    while (r)
-    {
-        push(&stk2, r);
-    }
-    while (peek(stk1) == peek(stk2))
-    {
-        r = pop(&stk1);
-        pop(stk2);
-    }
+	struct Node *ptr = NULL;
+
+	if (one && two)
+	{
+		ptr = one;
+
+		while (ptr)
+		{
+			push (&stkx, ptr);
+			ptr = ptr->next;
+		}
+
+		ptr = two;
+
+		while (ptr)
+		{
+			push (&stky, ptr);
+			ptr = ptr->next;
+		}
+
+		while (peek (stkx) == peek (stky))
+		{
+			pop (stkx);
+			ptr = pop (stky);
+		}
+	}
+
+	return ptr;
 }
-int main(int argc, char const *argv[])
+*/
+
+int main (int argc, char const *argv[])
 {
-    int A[] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
-    int B[] = {1, 3, 5};
-    first = Create(first, A, 10);
-    second = Create(first, B, 3);
-    struct Node *p = first, *q = second;
-    while (q->next)
-        q = q->next;
-    while (p->data != 10)
-        p = p->next;
-    q->next = p;
-    IDisplay(first);
-    IDisplay(second);
-    return 0;
+	struct Node *lstx = NULL, *lsty = NULL;
+	int A[] = {0, 2, 4, 6, 8, 10, 12, 14, 16, 18};
+	int B[] = {1, 3, 5};
+
+	lstx = Create (&lstx, A, 10);
+	lsty = Create (&lsty, B, 3);
+
+	struct Node *p = lstx, *q = lsty;
+
+	while (q->next)
+		q = q->next;
+
+	while (p->data != 10)
+		p = p->next;
+
+	q->next = p;
+
+	IDisplay (lstx);
+	IDisplay (lsty);
+
+	return 0;
 }

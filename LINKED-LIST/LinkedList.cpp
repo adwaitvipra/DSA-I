@@ -1,140 +1,211 @@
 #include <iostream>
+#include <climits>
+
 using namespace std;
-template <class T>
+
+template <typename T>
 class Node
 {
-public:
-    T data;
-    Node *next;
+	public:
+		T data;
+		Node *next;
 };
-template <class T>
+
+template <typename T>
 class LinkedList
 {
-private:
-    Node<T> *first;
+	private:
+		Node <T> *head;
 
-public:
-    LinkedList() { first = NULL; }
-    LinkedList(T A[], int n);
-    ~LinkedList();
-    void Display();
-    void Insert(int index, T x);
-    T Delete(int index);
-    int Length();
+	public:
+		LinkedList()
+		{ 
+			head = nullptr;
+		}
+
+		LinkedList (T [], int);
+		~LinkedList ();
+
+		int Length ();
+		void Display ();
+
+		void Insert (int, T);
+		T Delete (int);
 };
-template <class T>
-LinkedList<T>::LinkedList(T A[], int n)
-{
-    Node<T> *t, *last;
-    first = new Node<T>;
-    first->data = A[0];
-    first->next = NULL;
-    last = first;
 
-    for (int i = 1; i < n; i++)
-    {
-        t = new Node<T>;
-        t->data = A[i];
-        t->next = NULL;
-        last->next = t;
-        last = t;
-    }
-}
-template <class T>
-LinkedList<T>::~LinkedList()
+	template <typename T>
+LinkedList <T> :: LinkedList (T arr[], int n)
 {
-    Node<T> *p = NULL, *q = first;
-    while (q)
-    {
-        p = q;
-        q = q->next;
-        delete p;
-    }
+	Node <T> *tmp = nullptr, *tail = nullptr;
+
+	if (arr && (n > 0))
+	{
+		head = new Node <T>;
+		head->data = arr[0];
+		head->next = nullptr;
+
+		tail = head;
+
+		for (int i = 1; i < n; i++)
+		{
+			tmp = new Node <T>;
+
+			tmp->data = arr[i];
+			tmp->next = nullptr;
+
+			tail->next = tmp;
+			tail = tmp;
+		}
+	}
+
+	return ;
 }
-template <class T>
-int LinkedList<T>::Length()
+
+	template <typename T>
+LinkedList <T> :: ~LinkedList ()
 {
-    int i = 0;
-    Node<T> *p = first;
-    while (p)
-    {
-        i++;
-        p = p->next;
-    }
-    return i;
+	Node <T> *prev = nullptr, *curr = nullptr;
+
+	if (head)
+	{
+		curr = head;
+
+		while (curr)
+		{
+			prev = curr;
+			curr = curr->next;
+
+			delete prev;
+		}
+	}
+
+	return ;
 }
-template <class T>
-void LinkedList<T>::Display()
+
+	template <typename T>
+int LinkedList <T> :: Length ()
 {
-    Node<T> *p = first;
-    while (p)
-    {
-        cout << p->data << " ";
-        p = p->next;
-    }
-    printf("\n");
+	int len = INT_MIN;
+	Node <T> *itr = nullptr;
+
+	if (head)
+	{
+		len = 0;
+		itr = head;
+
+		while (itr)
+		{
+			len += 1;
+			itr = itr->next;
+		}
+	}
+
+	return len;
 }
-template <class T>
-void LinkedList<T>::Insert(int index, T x)
+
+	template <typename T>
+void LinkedList <T> :: Display ()
 {
-    Node<T> *p = first;
-    Node<T> *t = NULL;
-    if (index < 0 || index > Length())
-        return;
-    t = new Node<T>;
-    t->data = x;
-    t->next = NULL;
-    if (index == 0)
-    {
-        t->next = first;
-        first = t;
-    }
-    else
-    {
-        for (int i = 0; i < index - 1; i++) // move p ahead index-1 times
-            p = p->next;
-        t->next = p->next;
-        p->next = t;
-    }
+	Node <T> *itr = nullptr;
+
+	if (head)
+	{
+		itr = head;
+
+		while (itr)
+		{
+			cout << itr->data << ' ';
+			itr = itr->next;
+		}
+		cout << endl;
+	}
+
+	return ;
 }
-template <class T>
-T LinkedList<T>::Delete(int index) // assuming index starts form 1;
+
+	template <typename T>
+void LinkedList <T> :: Insert (int idx, T x)
 {
-    Node<T> *p = first;
-    Node<T> *q = NULL;
-    T x;
-    if (index < 1 || index > Length())
-        return -1;
-    if (index == 1)
-    {
-        x = p->data;
-        first = first->next;
-        free(p);
-        return x;
-    }
-    else
-    {
-        for (int i = 0; i < index - 1; i++)
-        {
-            q = p;
-            p = p->next;
-        }
-        x = p->data;
-        q->next = p->next;
-        free(p);
-        return x;
-    }
+	Node <T> *tmp = nullptr, *ptr = nullptr;
+
+	if ((idx >= 0) && (idx <= Length ()))
+	{
+		ptr = head;
+
+		tmp = new Node <T>;
+
+		tmp->data = x;
+		tmp->next = nullptr;
+
+		if (!idx)
+		{
+			tmp->next = head;
+			head = tmp;
+		}
+		else
+		{
+			for (int jmp = 0; jmp < (idx - 1); jmp++)
+				ptr = ptr->next;
+
+			tmp->next = ptr->next;
+			ptr->next = tmp;
+		}
+	}
+
+	return ;
 }
-int main(int argc, char const *argv[])
+
+	template <typename T>
+T LinkedList <T> :: Delete (int idx)
 {
-    float A[] = {1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9};
-    LinkedList<float> l(A, 10);
-    l.Display();
-    l.Insert(0, 0.5);
-    l.Display();
-    cout << l.Length() << endl;
-    l.Delete(5);
-    l.Delete(1);
-    l.Display();
-    return 0;
+	T ret = INT_MIN;
+	Node <T> *prev = nullptr, *curr = nullptr;
+
+	if ((idx >= 0) && (idx < Length ()))
+	{
+		curr = head;
+
+		if (!idx)
+		{
+			ret = curr->data;
+
+			head = head->next;
+
+			free (curr);
+		}
+		else
+		{
+			for (int jmp = 0; jmp < idx; jmp++)
+			{
+				prev = curr;
+				curr = curr->next;
+			}
+
+			ret = curr->data;
+
+			prev->next = curr->next;
+
+			free (curr);
+		}
+	}
+
+	return ret;
+}
+
+int main (const int argc, const char *argv[])
+{
+	float arr[] = {1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9};
+	LinkedList <float> list (arr, 9);
+
+	list.Display ();
+
+	list.Insert (0, 0.0);
+	list.Insert (10, 10.10);
+	list.Display ();
+
+	list.Delete (0);
+	list.Delete (9);
+	list.Display ();
+
+	return 0;
 }
