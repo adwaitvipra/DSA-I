@@ -1,58 +1,103 @@
 #include <stdio.h>
 #include <stdlib.h>
-struct UpperTri
+#include <limits.h>
+
+#define ROW_MAJ(N, I, J) (((N) * ((I) - 1)) - ((((I) - 1) * ((I) - 2)) / 2) + ((J) - (I)))
+#define COL_MAJ(I, J) ((((J) * ((J) - 1)) / 2) + ((I) - 1))
+
+struct Matrix
 {
-    int n;
-    int *A;
+	int *arr;
+	int n;
 };
-void Display(struct UpperTri m)
+
+void Display (struct Matrix mat)
 {
-    int i, j;
-    for (i = 1; i <= m.n; i++)
-    {
-        for (j = 1; j <= m.n; j++)
-        {
-            if (i <= j)
-                //printf("%d ", m.A[m.n * (i - 1) - (i - 1) * (i - 2) / 2 + (j - i)]); // row major
-                                                                                     printf("%d ", m.A[j*(j-1)/2 + (i-1)]);
-            else
-                printf("0 ");
-        }
-        printf("\n");
-    }
+	if (mat.arr && (mat.n > 0))
+	{
+		for (int i = 1; i <= mat.n; i++)
+		{
+			for (int j = 1; j <= mat.n; j++)
+			{
+				if (i > j)
+					printf ("0 ");
+				else
+				{
+					/*
+					   printf ("%d ", mat.arr[COL_MAJ (i, j)]);
+					   */
+
+					printf ("%d ", mat.arr[ROW_MAJ (mat.n, i, j)]);
+				}
+			}
+			printf ("\n");
+		}
+	}
+
+	return ;
 }
-void Set(struct UpperTri *m, int i, int j, int x)
+
+void Set (struct Matrix *mat, int i, int j, int val)
 {
-    if (i <= j)
-    {
-       // m->A[m->n * (i - 1) - (i - 1) * (i - 2) / 2 + (j - i)] = x; // row major
-         m->A[j*(j-1)/2 + i-1]=x;
-    }
+	if (mat && mat->arr && (i <= mat->n) && (j <= mat->n))
+	{
+		/*
+		   mat->arr[COL_MAJ (i, j)] = val;
+		   */
+
+		mat->arr[ROW_MAJ (mat->n, i, j)] = val;
+	}
+
+	return ;
 }
-int Get(struct UpperTri m, int i, int j)
+
+int Get (struct Matrix mat, int i, int j)
 {
-    if (i <= j)
-    {
-        //return m.A[m.n * (i - 1) - (i - 1) * (i - 2) / 2 + (j - i)]; // row major
-        return m.A[j*(j-1)/2-(i-1)];
-    }
+	int ret = INT_MIN;
+
+	if (mat.arr && (mat.n > 0) && (i <= mat.n) && (j <= mat.n))
+	{
+		if (i > j)
+			ret = 0;
+		else
+		{
+			/*
+			   ret = mat.arr[COL_MAJ (i, j)];
+			   */
+
+			ret = mat.arr[ROW_MAJ (mat.n, i, j)];
+		}
+	}
+
+	return ret;
 }
-int main(int argc, char const *argv[])
+
+int main (const int argc, const char *argv[])
 {
-    struct UpperTri m;
-    int i, j, x;
-    printf("Enter Dimension of Upper Triangular Matrix:\n");
-    scanf(" %d", &m.n);
-    m.A = (int *)malloc(sizeof(int) * m.n * (m.n + 1) / 2);
-    printf("Enter all the elements:");
-    for (i = 1; i <= m.n; i++)
-    {
-        for (j = 1; j <= m.n; j++)
-        {
-            scanf(" %d", &x);
-            Set(&m, i, j, x);
-        }
-    }
-    Display(m);
-    return 0;
+	int i, j, x;
+	struct Matrix m;
+
+	printf ("Enter Dimension: ");
+	scanf ("%d", &m.n);
+
+	m.arr = (int *) malloc (sizeof (int) * m.n * (m.n + 1) / 2);
+
+	printf ("Enter all Elements:\n");
+	for (i = 1; i <= m.n; i++)
+	{
+		for (j = 1; j <= m.n; j++)
+		{
+			scanf (" %d", &x);
+			Set (&m, i, j, x);
+		}
+	}
+
+	printf ("%d \n", Get (m, 1, 1));
+	printf ("%d \n", Get (m, 2, 2));
+
+	Display (m);
+
+	free (m.arr);
+
+	return 0;
 }

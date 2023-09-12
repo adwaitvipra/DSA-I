@@ -1,60 +1,104 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <limits.h>
+
+#define ROW_MAJ(I, J) ((((I) * ((I) - 1)) / 2) + ((J) - 1))
+#define COL_MAJ(N, I, J) (((N) * ((J) - 1)) - ((((J) - 1) * ((J) - 2)) / 2) + ((I) - (J)))
+
 
 struct Matrix
 {
-    int *A;
-    int n;
+	int *arr;
+	int n;
 };
-void Display(struct Matrix m)
-{
-    int i, j;
-    for (i = 1; i <= m.n; i++)
-    {
-        for (j = 1; j <= m.n; j++)
-        {
-            if (i >= j)
-                // printf("%d ", m.A[i*(i-1)/2+j-1]); // Row major
-                printf("%d ", m.A[m.n * (j - 1) - (j - 2) * (j - 1) / 2 + (i - j)]); // Col major
-            else
-                printf("0 ");
-        }
-        printf("\n");
-    }
-}
-void Set(struct Matrix *m, int i, int j, int x)
-{
-    if (i >= j)
-        // m->A[i * (i - 1) / 2 + j - 1] = x;// Row major
-        m->A[m->n * (j - 1) - (j - 2) * (j - 1) / 2 + (i - j)] = x; // col major
-}
-int Get(struct Matrix m, int i, int j)
-{
-    if (i >= j)
-        // return m.A[i * (i - 1) / 2 + j - 1]; // row major
-        return m.A[m.n * (j - 1) - (j - 2) * (j - 1) / 2 + (i - j)];
-    else
-        return 0;
-}
-int main(int argc, char const *argv[])
-{
-    struct Matrix m;
-    int i, j, x;
-    printf("Enter Dimension:");
-    scanf(" %d", &m.n);
-    m.A = (int *)malloc(sizeof(int) * m.n * (m.n + 1) / 2);
 
-    printf("Enter all Elements:\n");
-    for (i = 1; i <= m.n; i++)
-    {
-        for (j = 1; j <= m.n; j++)
-        {
-            scanf(" %d", &x);
-            Set(&m, i, j, x);
-        }
-    }
-    printf("%d \n", Get(m, 1, 1));
-    printf("%d \n", Get(m, 1, 2));
-    Display(m);
-    return 0;
+void Display (struct Matrix mat)
+{
+	if (mat.arr && (mat.n > 0))
+	{
+		for (int i = 1; i <= mat.n; i++)
+		{
+			for (int j = 1; j <= mat.n; j++)
+			{
+				if (i < j)
+					printf ("0 ");
+				else
+				{
+					/*
+					   printf ("%d ", mat.arr[ROW_MAJ (i, j)]);
+					   */
+
+					printf ("%d ", mat.arr[COL_MAJ (mat.n, i, j)]);
+				}
+			}
+			printf ("\n");
+		}
+	}
+
+	return ;
+}
+
+void Set (struct Matrix *mat, int i, int j, int val)
+{
+	if (mat && mat->arr && (i <= mat->n) && (j <= mat->n))
+	{
+		/*
+		   mat->arr[ROW_MAJ (i, j)] = val;
+		   */
+
+		mat->arr[COL_MAJ (mat->n, i, j)] = val;
+	}
+
+	return ;
+}
+
+int Get (struct Matrix mat, int i, int j)
+{
+	int ret = INT_MIN;
+
+	if (mat.arr && (mat.n > 0) && (i <= mat.n) && (j <= mat.n))
+	{
+		if (i < j)
+			ret = 0;
+		else
+		{
+			/*
+			   ret = mat.arr[ROW_MAJ (i, j)];
+			   */
+
+			ret = mat.arr[COL_MAJ (mat.n, i, j)];
+		}
+	}
+
+	return ret;
+}
+
+int main (const int argc, const char *argv[])
+{
+	int i, j, x;
+	struct Matrix m;
+
+	printf ("Enter Dimension: ");
+	scanf ("%d", &m.n);
+
+	m.arr = (int *) malloc (sizeof (int) * m.n * (m.n + 1) / 2);
+
+	printf ("Enter all Elements:\n");
+	for (i = 1; i <= m.n; i++)
+	{
+		for (j = 1; j <= m.n; j++)
+		{
+			scanf (" %d", &x);
+			Set (&m, i, j, x);
+		}
+	}
+
+	printf ("%d \n", Get (m, 1, 1));
+	printf ("%d \n", Get (m, 2, 2));
+
+	Display (m);
+
+	free (m.arr);
+
+	return 0;
 }
