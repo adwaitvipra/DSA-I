@@ -1,134 +1,213 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
+
 struct Node
 {
-    int data;
-    struct Node *next;
-} * Head;
-void Create(int A[], int n)
-{
-    int i;
-    struct Node *t, *last;
-    Head = (struct Node *)malloc(sizeof(struct Node));
-    Head->data = A[0];
-    Head->next = Head;
-    last = Head;
+	int data;
+	struct Node *next;
+};
 
-    for (i = 1; i < n; i++)
-    {
-        t = (struct Node *)malloc(sizeof(struct Node));
-        t->data = A[i];
-        t->next = last->next;
-        last->next = t;
-        last = t;
-    }
-}
-void IDisplay(struct Node *h)
+struct Node *Create (int arr[], int n)
 {
-    do
-    {
-        printf("%d ", h->data);
-        h = h->next;
-    } while (h != Head);
-    printf("\n");
-}
-void RDisplay(struct Node *h) // maintain a static flag to check if ptr comes second time on head node
-{
-    static int flag = 0;
-    if (h != Head || flag == 0)
-    {
-        flag = 1;
-        printf("%d ", h->data);
-        RDisplay(h->next);
-    }
-    flag = 0;
-}
-int Length(struct Node *h)
-{
-    int l = 0;
-    do
-    {
-        l++;
-        h = h->next;
-    } while (h != Head);
-    return l;
-}
-void Insert(struct Node *h, int index, int x)
-{
-    int i;
-    struct Node *t, *p;
-    if (index < 0 || index > Length(h))
-        return;
-    t = (struct Node *)malloc(sizeof(struct Node));
-    t->data = x;
-    if (index == 0)
-    {
-        if (h == NULL)
-        {
-            t->next = t;
-            Head = t;
-        }
-        else
-        {
+	struct Node *new = NULL, *head = NULL, *tail = NULL;
 
-            while (h->next != Head)
-            {
-                h = h->next;
-            }
-            t->next = Head;
-            h->next = t;
-            Head = t; // moving head on t
-        }
-    }
-    else
-    {
-        for (i = 0; i < index - 1; i++)
-            h = h->next;
-        t->next = h->next;
-        h->next = t;
-    }
-}
-int Delete(struct Node *h, int index)
-{
-    int i, x;
-    struct Node *q;
-    // check for valid index
-    if (index < 1 || index > Length(h))
-        return -1;
-    if (index == 1)
-    {
-        while (h->next != Head)
-            h = h->next;
-        x = Head->data;
-        if (Head == h)
-        {
-            free(h);
-            Head = NULL;
-        }
-        else
-        {
-            h->next = Head->next;
-            free(Head);
-            Head = h->next;
-        }
-    }
-    else
-    {
-        for (i = 0; i < index - 2; i++) //move h to second last node of index node and assign q to node at index
-        {
-            h=h->next;
-        }
-        q=h->next;
-        h->next=q->next;
-        x=q->data;
-        free(q);
-    }
-    return x;
+	if (arr && (n > 0) && (new = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		new->data = arr[0];
+		new->next = NULL;
+
+		head = new;
+		tail = new;
+
+		for (int idx = 1; idx < n; idx++)
+		{
+			if ((new = (struct Node *) malloc (sizeof (struct Node))))
+			{
+				new->data = arr[idx];
+				new->next = NULL;
+
+				tail->next = new;
+				tail = new;
+			}
+		}
+
+		tail->next = head;
+	}
+
+	return head;
 }
 
-int main(int argc, char const *argv[])
+void IDisplay (struct Node *lst)
 {
-    int A[] = {1};
-    Create(A, 1);
-    return 0;
+	struct Node *ptr = NULL;
+
+	if (lst)
+	{
+		ptr = lst;
+
+		do
+		{
+			printf ("%d ", ptr->data);
+			ptr = ptr->next;
+
+		} while (ptr != lst);
+
+		printf ("\n");
+	}
+
+	return ;
+}
+
+void RDisplay (struct Node *lst)
+{
+	static bool flag = false;
+	static struct Node *head = NULL;
+
+	if (lst && (lst != head))
+	{
+		if (!flag)
+		{
+			flag = true;
+			head = lst;
+		}
+
+		printf ("%d ", lst->data);
+		RDisplay (lst->next);
+	}
+	else
+	{
+		flag = false;
+		head = NULL;
+
+		printf ("\n");
+	}
+
+	return ;
+}
+
+int Length (struct Node *lst)
+{
+	int len = INT_MIN;
+	struct Node *ptr = NULL;
+
+	if (lst)
+	{
+		len = 0;
+		ptr = lst;
+
+		do
+		{
+			len += 1;
+			ptr = ptr->next;
+
+		} while (ptr != lst);
+	}
+
+	return len;
+}
+
+struct Node *Insert (struct Node *lst, int idx, int val)
+{
+	struct Node *new = NULL, *ptr = NULL, *head = NULL;
+
+	if ((idx >= 0) && (idx <= Length (lst))
+			&& (new = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		new->data = val;
+		new->next = NULL;
+
+		if (!lst)
+		{
+			head = new;
+			new->next = new;
+		}
+		else
+		{
+			ptr = lst;
+
+			if (!idx)
+			{
+				do
+				{
+					ptr = ptr->next;
+
+				} while (ptr->next != lst);
+
+				new->next = lst;
+				ptr->next = new;
+
+				head = new;
+			}
+			else
+			{
+				for (int jmp = 0; jmp < (idx - 1); jmp++)
+					ptr = ptr->next;
+
+				new->next = ptr->next;
+				ptr->next = new;
+
+				head = lst;
+			}
+		}
+
+	}
+
+	return head;
+}
+
+struct Node *Delete (struct Node *lst, int idx)
+{
+	struct Node *tmp = NULL, *ptr = NULL, *head = NULL;
+
+	if (lst && (idx >= 0) && (idx < Length (lst)))
+	{
+		ptr = lst;
+
+		if (!idx)
+		{
+			do
+			{
+				ptr = ptr->next;
+
+			} while (ptr->next != lst);
+
+			tmp = lst;
+
+			ptr->next = lst->next;
+			head = lst->next;
+
+			free (tmp);
+		}
+		else
+		{
+			head = lst;
+
+			for (int jmp = 0; jmp < (idx - 1); jmp++)
+				ptr = ptr->next;
+
+			tmp = ptr->next;
+			ptr->next = tmp->next;
+
+			free (tmp);
+		}
+	}
+
+	return head;
+}
+
+int main (const int argc, const char *argv[])
+{
+	struct Node *list = NULL;
+	int arr[] = {1, 2, 3, 4, 5, 6};
+
+	list = Create (arr, sizeof(arr) / sizeof(int));
+	RDisplay (list);
+
+	list = Delete (list, 0);
+	list = Delete (list, 2);
+	RDisplay (list);
+
+	return 0;
 }
