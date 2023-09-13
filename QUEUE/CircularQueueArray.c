@@ -1,92 +1,161 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
 
 struct Queue
 {
-    int size;
-    int front;
-    int rear;
-    int *Q;
+	int *Q;
+	int size;
+	int front;
+	int rear;
 };
-void Create(struct Queue *q, int s)
+
+struct Queue *Create (struct Queue **queue, int size)
 {
-    q->size = s;
-    q->front = q->rear = 0;
-    q->Q = (int *)malloc(sizeof(int) * q->size);
-    return;
+	struct Queue *new = NULL;
+
+	if ((new = (struct Queue *) malloc (sizeof (struct Queue))))
+	{
+		if ((new->Q = (int *) malloc (size * sizeof (int))))
+		{
+			new->size = size;
+			new->front = new->rear = 0;
+		}
+		else
+		{
+			free (new);
+			new = NULL;
+		}
+
+		if (queue)
+		{
+			*queue = new;
+		}
+	}
+
+	return new;
 }
-int IsEmpty(struct Queue q)
+
+bool IsValid (struct Queue queue)
 {
-    if (q.front == q.rear)
-        return 1;
-    return 0;
+	bool flag = false;
+
+	if (queue.Q && (queue.size >= 0))
+		flag = true;
+
+	return flag;
 }
-int IsFull(struct Queue q)
+
+bool IsEmpty (struct Queue queue)
 {
-    if ((q.rear + 1) % q.size == q.front)
-        return 1;
-    return 0;
+	bool flag = false;
+
+	if (IsValid (queue))
+		if (queue.front == queue.rear)
+			flag = true;
+
+	return flag;
 }
-void Display(struct Queue q)
+
+bool IsFull (struct Queue queue)
 {
-    int i = q.front + 1;
-    if (IsEmpty(q))
-    {
-        printf("Queue Underflow!");
-    }
-    do
-    {
-        printf("%d ", q.Q[i]);
-        i = (i + 1) % q.size; //move i circularly 
-    } while (i!=(q.rear + 1) % q.size);//move i circularly unless is not equal to r + 1, that is print data
-    // on r but don't go in loop if  i is equal to rear + 1
-    printf("\n");
-    return;
+	bool flag = false;
+
+	if (IsValid (queue))
+		if (((queue.rear + 1) % queue.size) == queue.front)
+			flag = true;
+
+	return flag;
 }
-void enqueue(struct Queue *q, int x)
+
+void Display (struct Queue queue)
 {
-    if (IsFull(*q))
-    {
-        printf("Queue Overflow!\n");
-        return;
-    }
-    q->rear = (q->rear + 1) % q->size;
-    q->Q[q->rear] = x;
-    return;
+	int idx;
+
+	if (IsValid (queue) && !IsEmpty (queue))
+	{
+		/*
+		 * move idx circularly unless is not equal to rear + 1,
+		 * that is print data on rear but don't go in loop if idx is equal to rear + 1
+		 */
+
+		idx = queue.front + 1;
+
+		do
+		{
+			printf ("%d ", queue.Q[idx]);
+			idx = (idx + 1) % queue.size;
+
+		} while (idx != (queue.rear + 1) % queue.size);
+
+		printf ("\n");
+	}
+
+	return ;
 }
-int dequeue(struct Queue *q)
+
+bool Enqueue (struct Queue *queue, int val)
 {
-    int x = -1;
-    if (IsEmpty(*q))
-    {
-        printf("Queue Underflow!");
-        return x;
-    }
-    q->front = (q->front + 1) % q->size;
-    x = q->Q[q->front];
-    return x;
+	bool flag = false;
+
+	if (queue && IsValid (*queue) && !IsFull (*queue))
+	{
+		flag = true;
+
+		queue->rear = (queue->rear + 1) % queue->size;
+		queue->Q[queue->rear] = val;
+	}
+
+	return flag;
 }
-int main(int argc, char const *argv[])
+
+int Dequeue (struct Queue *queue)
 {
-    struct Queue q;
-    Create(&q, 10);
-    enqueue(&q, 10);
-    enqueue(&q, 100);
-    enqueue(&q, 1000);
-    enqueue(&q, 10000);
-    enqueue(&q, 100000);
-    Display(q);
-    printf("%d ", dequeue(&q));
-    printf("%d ", dequeue(&q));
-    printf("%d ", dequeue(&q));
-    enqueue(&q, 10);
-    enqueue(&q, 100);
-    enqueue(&q, 1000);
-    enqueue(&q, 10000);
-    printf("%d ", dequeue(&q));
-    printf("%d ", dequeue(&q));
-    printf("%d ", dequeue(&q));
-    printf("\n");
-    Display(q);
-    return 0;
+	int ret = INT_MIN;
+
+	if (queue && IsValid (*queue) && !IsEmpty (*queue))
+	{
+		queue->front = (queue->front + 1) % queue->size;
+		ret = queue->Q[queue->front];
+	}
+
+	return ret;
+}
+
+void Delete (struct Queue **queue)
+{
+	if (queue && *queue)
+	{
+		if ((*queue)->Q)
+			free ((*queue)->Q);
+
+		free (*queue);
+
+		*queue = NULL;
+	}
+
+	return ;
+}
+
+int main (const int argc, const char *argv[])
+{
+	struct Queue *queue = NULL;
+
+	Create (&queue, 10);
+
+	for (int i = 0, val = 1; i < 10; i++, val *= 10)
+		Enqueue (queue, val);
+
+	Display (*queue);
+
+	while (queue && IsValid (*queue) && !IsEmpty(*queue))
+		printf ("%d ", Dequeue (queue));
+	printf ("\n");
+
+	Display (*queue);
+
+	Delete (&queue);
+
+	return 0;
 }

@@ -1,91 +1,171 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <limits.h>
+
+struct Queue
+{
+	int size;
+
+	struct Node *front;
+	struct Node *rear;
+};
+
 struct Node
 {
-    int data;
-    struct Node *next;
-} *front = NULL, *rear = NULL;
-int IsEmpty()
+	int data;
+	struct Node *next;
+};
+
+bool IsEmpty (struct Queue queue)
 {
-    if (front == NULL)
-        return 1;
-    return 0;
-}
-int IsFull()
-{
-    struct Node *t;
-    t = (struct Node *)malloc(sizeof(struct Node));
-    if (!t)
-        return 1;
-    else
-        return 0;
+	bool flag = true;
+
+	if (queue.front && (queue.size > 0))
+		flag = false;
+
+	return flag;
 }
 
-void enqueue(int x)
+bool IsFull ()
 {
-    struct Node *t;
-    t = (struct Node *)malloc(sizeof(struct Node));
-    if (t == NULL)
-    {
-        printf("Queue Overflow!\n");
-        return;
-    }
-    else
-    {
-        t->data = x;
-        t->next = NULL;
-        if (front == NULL)
-            front = rear = t;
-        else
-        {
-            rear->next = t;
-            rear = t;
-        }
-    }
+	bool flag = true;
+	struct Node *tmp = NULL;
+
+	if ((tmp = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		flag = false;
+		free (tmp);
+	}
+
+	return flag;
 }
-int dequeue()
+
+struct Queue *Create (struct Queue **queue)
 {
-    int x = -1;
-    struct Node *p;
-    if (front == NULL)
-    {
-        printf("Queue Underflow!\n");
-        return x;
-    }
-    else
-    {
-        p = front;
-        front = front->next;
-        x = p->data;
-        free(p);
-    }
-    return x;
+	struct Queue *new = NULL;
+
+	if ((new = (struct Queue *) malloc (sizeof (struct Queue))))
+	{
+		new->size = 0;
+
+		new->front = new->rear = NULL;
+
+		if (queue)
+		{
+			*queue = new;
+		}
+	}
+
+	return new;
 }
-void Display()
+
+void Enqueue (struct Queue *queue, int val)
 {
-    struct Node *p;
-    p = front;
-    while (p)
-    {
-        printf("%d ", p->data);
-        p = p->next;
-    }
-    printf("\n");
+	struct Node *new = NULL;
+
+	if (queue && !IsFull ()
+			&& (new = (struct Node *) malloc (sizeof (struct Node))))
+	{
+		new->data = val;
+		new->next = NULL;
+
+		if (!queue->front)
+		{
+			queue->size = 1;
+
+			queue->front = queue->rear = new;
+		}
+		else
+		{
+			queue->size += 1;
+
+			queue->rear->next  = new;
+			queue->rear = new;
+		}
+	}
+
+	return ;
 }
-int main(int argc, char const *argv[])
+
+int Dequeue (struct Queue *queue)
 {
-    enqueue(10);
-    enqueue(20);
-    enqueue(30);
-    Display();
-    enqueue(40);
-    enqueue(50);
-    Display();
-    printf("%d is deleted\n", dequeue());
-    printf("%d is deleted\n", dequeue());
-    Display();
-    printf("%d is deleted\n", dequeue());
-    printf("%d is deleted\n", dequeue());
-    Display();
-    return 0;
+	int ret = INT_MIN;
+	struct Node *tmp = NULL;
+
+	if (queue && !IsEmpty (*queue))
+	{
+		queue->size -= 1;
+
+		tmp = queue->front;
+		ret = tmp->data;
+
+		queue->front = queue->front->next;
+
+		free (tmp);
+	}
+
+	return ret;
+}
+
+void Display (struct Queue queue)
+{
+	struct Node *ptr = NULL;
+
+	if (!IsEmpty (queue))
+	{
+		ptr = queue.front;
+
+		while (ptr)
+		{
+			printf ("%d ", ptr->data);
+			ptr = ptr->next;
+		}
+		printf ("\n");
+	}
+
+	return ;
+}
+
+void Delete (struct Queue **queue)
+{
+	if (queue && *queue)
+	{
+		while ((*queue)->front && ((*queue)->size > 0))
+			Dequeue (*queue);
+
+		free (*queue);
+
+		*queue = NULL;
+	}
+
+	return ;
+}
+
+int main (const int argc, const char *argv[])
+{
+	struct Queue *queue = NULL;
+
+	Create (&queue);
+
+	Enqueue (queue, 10);
+	Enqueue (queue, 20);
+	Enqueue (queue, 30);
+	Display (*queue);
+
+	Enqueue (queue, 40);
+	Enqueue (queue, 50);
+	Display (*queue);
+
+	printf ("%d is deleted\n", Dequeue (queue));
+	printf ("%d is deleted\n", Dequeue (queue));
+	Display (*queue);
+
+	printf ("%d is deleted\n", Dequeue (queue));
+	printf ("%d is deleted\n", Dequeue (queue));
+	Display (*queue);
+
+	Delete (&queue);
+
+	return 0;
 }
